@@ -60,14 +60,15 @@ def is_visited(node) :
     return db.table('User').contains(tinydb.Query().id == node.get('id'))
 
 def is_enough() :
-    return len(db.table('Repo'))>1000
+    return False
+#    return len(db.table('Repo'))>1000
 
 def crawl(seeds=url2json('https://api.github.com/users'), max_queue_size=100) :
     q = queue.Queue(maxsize=max_queue_size)
     for seed in seeds :
         q.put(seed2node(seed))
     while not is_enough() :
-        time.sleep(1)
+        time.sleep(random.randrange(60, 100))
         node = q.get()
         print('crawling:', 'User:' + node.get('login'))
         if not is_visited(node) :
