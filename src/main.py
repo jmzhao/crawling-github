@@ -12,17 +12,23 @@ import queue
 import random
 import time
 import os
+import getpass
+import requests
 
 
 user_interested_keys = ('id', 'login', 'url', 'repos_url')
 repo_interested_keys = ('id', 'name', 'full_name', 'url', 'contributors_url')
 
+username = None
+password = None
+db_filename = '../data/db.tinydb'
+get_web_req_gap = lambda : 0#random.uniform(1,3)
 
 try :
     os.mkdir('../data/')
 except FileExistsError :
     pass
-db = tinydb.database.TinyDB('../data/db.tinydb')
+db = tinydb.database.TinyDB(db_filename)
 
 def user_node_for_store(node) :
     return dict((k, node.get(k)) for k in user_interested_keys)
@@ -31,13 +37,17 @@ def repo_node_for_store(node) :
 
 def url2json(url) :
     print('requerying:', url)
-    t = random.random() * 10
+    t = get_web_req_gap()
     print('hold for %fs...'%t, end=' ', flush=True)
     time.sleep(t)
     print('hold cleared.', end=' ', flush=True)
-    res = urllib.request.urlopen(url)
-    print('done.')
-    obj = json.loads(res.read().decode('utf-8'))
+    res = requests.get(url, auth=(username, password))
+#   res = urllib.request.urlopen(url)
+    print('done.', end=' ', flush=True)
+    print('Remaining/Limit=%s/%s'%(
+        res.headers.get('X-RateLimit-Remaining'), 
+        res.headers.get('X-RateLimit-Limit')))
+    obj = json.loads(res.text)
     return obj
 
 def seed2node(seed) :
@@ -52,7 +62,12 @@ def generate_next_nodes(node) :
     '''
     repo_node_list = url2json(node['repos_url'])
     repo = random.choice(repo_node_list)
-    return url2json(repo["contributors_url"])
+    try :
+        return url2json(repo["contributors_url"])
+    except Exception as e :
+        print(e)
+        rest(10)
+        return []
 
 def store(node) :
     print('storing:', 'User:' + node.get('login'))
@@ -69,20 +84,18 @@ def is_enough() :
     return False
 #    return len(db.table('Repo'))>1000
 
-def rest() :
-    t = random.randrange(60, 100)
+def rest(t) :
     print(time.ctime() + ':', 'now rest for %ds'%t, flush=True)
 #    db.close()
     time.sleep(t)
     print(time.ctime() + ':', 'resumed', flush=True)
     
 
-def crawl(seeds=url2json('https://api.github.com/users'), max_queue_size=100) :
+def crawl(seeds, max_queue_size=100) :
     q = queue.Queue(maxsize=max_queue_size)
     for seed in seeds :
         q.put(seed2node(seed))
     while not is_enough() :
-        rest()
         node = q.get()
         print('crawling:', 'User:' + node.get('login'))
         if not is_visited(node) :
@@ -95,8 +108,21 @@ def crawl(seeds=url2json('https://api.github.com/users'), max_queue_size=100) :
             q.put(nnode)
             
 if __name__ == '__main__' :
+    while True :
+        try :
+            username = input("GitHub username:")
+            password = getpass.getpass()
+            res = requests.get("https://api.github.com/users/" + username, 
+                auth=(username, password))
+        except Exception as e :
+            print(e)
+            continue
+        print(res)
+        if res.ok :
+            break
+
     try :
-        crawl()
+        crawl(seeds=url2json('https://api.github.com/users'))
     except Exception as e :
         db.close()
         raise e
