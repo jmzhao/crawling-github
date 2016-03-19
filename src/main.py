@@ -14,6 +14,7 @@ import time
 import os
 import getpass
 import requests
+import sys
 
 
 user_interested_keys = ('id', 'login', 'url', 'repos_url')
@@ -22,10 +23,11 @@ repo_interested_keys = ('id', 'name', 'full_name', 'url', 'contributors_url')
 username = None
 password = None
 db_filename = './data/db.tinydb'
-get_web_req_gap = lambda : 0#random.uniform(1,3)
+get_web_req_gap = (eval('lambda : ' + sys.argv[2]) if len(sys.argv)>2 
+    else lambda : random.uniform(1,3))
 
 try :
-    os.mkdir('../data/')
+    os.mkdir('./data/')
 except FileExistsError :
     pass
 db = tinydb.database.TinyDB(db_filename)
