@@ -17,6 +17,6 @@ python3 src/main.py
 ```
 
 ## Results
-Results will be in `data/db.tinydb`.
+Results will be in `./data/db.tinydb`.
 
 **DON'T PUSH DATA!**
