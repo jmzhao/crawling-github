@@ -70,4 +70,6 @@ def crawl(seeds=url2json('https://api.github.com/users'), max_queue_size=100) :
             continue
         if not is_visited(nnode) :
             q.put(nnode)
-                
+            
+if __name__ == '__main__' :
+    crawl()
