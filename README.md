@@ -1,4 +1,5 @@
 # crawling-github
+let's get it started! 
 
-# let's get it started! 
-Hello!
+## dependencies
+- [tinydb](http://tinydb.readthedocs.org/) [3.1.3](https://pypi.python.org/pypi/tinydb/3.1.3)
