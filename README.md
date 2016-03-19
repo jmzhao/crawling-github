@@ -1,13 +1,18 @@
 # crawling-github
 let's get it started! 
 
-## dependencies
+## Dependencies
 - [tinydb](http://tinydb.readthedocs.org/) [3.1.3](https://pypi.python.org/pypi/tinydb/3.1.3)
 ```
 pip install tinydb
 ```
 
-## run
+## Run
 ```
 python3 src/main.py
 ```
+
+## Results
+Results will be in `data/db.tinydb`.
+
+**DON'T PUSH DATA!**
