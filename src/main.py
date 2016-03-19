@@ -70,7 +70,7 @@ def is_enough() :
 def rest() :
     t = random.randrange(60, 100)
     print(time.ctime() + ':', 'now rest for %ds'%t)
-    db.close()
+#    db.close()
     time.sleep(t)
     
 
