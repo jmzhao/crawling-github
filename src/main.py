@@ -23,7 +23,7 @@ repo_interested_keys = ('id', 'name', 'full_name', 'url', 'contributors_url')
 username = None
 password = None
 db_filename = './data/db.tinydb'
-get_web_req_gap = (eval('lambda : ' + sys.argv[2]) if len(sys.argv)>2 
+get_web_req_gap = (eval('lambda : ' + sys.argv[1]) if len(sys.argv)>1 
     else lambda : random.uniform(1,3))
 
 try :
