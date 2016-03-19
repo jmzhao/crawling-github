@@ -6,6 +6,10 @@ let's get it started!
 ```
 pip install tinydb
 ```
+- [requests](http://docs.python-requests.org/)
+```
+pip install requests
+```
 
 ## Run
 ```
