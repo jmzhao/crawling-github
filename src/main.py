@@ -98,7 +98,7 @@ def crawl(seeds, max_queue_size=100) :
     for seed in seeds :
         q.put(seed2node(seed))
     while not is_enough() :
-        node = q.get()
+        node = q.get_nowait()
         print('crawling:', 'User:' + node.get('login'))
         if not is_visited(node) :
             store(node)
@@ -107,7 +107,9 @@ def crawl(seeds, max_queue_size=100) :
         except IndexError :
             continue
         if not is_visited(nnode) :
-            q.put(nnode)
+            if q.full() :
+                q.get_nowait()
+            q.put_nowait(nnode)
             
 if __name__ == '__main__' :
     while True :
