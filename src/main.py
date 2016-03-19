@@ -11,10 +11,18 @@ import tinydb
 import queue
 import random
 import time
+import os
 
-db = tinydb.database.TinyDB('../data/db.tinydb')
+
 user_interested_keys = ('id', 'login', 'url', 'repos_url')
 repo_interested_keys = ('id', 'name', 'full_name', 'url', 'contributors_url')
+
+
+try :
+    os.mkdir('../data/')
+except FileExistsError :
+    pass
+db = tinydb.database.TinyDB('../data/db.tinydb')
 
 def user_node_for_store(node) :
     return node.fromkeys(user_interested_keys)
