@@ -12,6 +12,7 @@ pip install requests
 ```
 
 ## Run
+`cd` to repository directory and
 ```
 python3 src/main.py
 ```
