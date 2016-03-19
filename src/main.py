@@ -32,7 +32,7 @@ def repo_node_for_store(node) :
 def url2json(url) :
     print('requerying:', url)
     t = random.random() * 10
-    print('hold for %fs...'%t, end=' ')
+    print('hold for %fs...'%t, end=' ', flush=True)
     time.sleep(t)
     res = urllib.request.urlopen(url)
     print('done.')
@@ -70,7 +70,7 @@ def is_enough() :
 
 def rest() :
     t = random.randrange(60, 100)
-    print(time.ctime() + ':', 'now rest for %ds'%t)
+    print(time.ctime() + ':', 'now rest for %ds'%t, flush=True)
 #    db.close()
     time.sleep(t)
     
