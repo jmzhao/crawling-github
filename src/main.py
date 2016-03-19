@@ -80,4 +80,8 @@ def crawl(seeds=url2json('https://api.github.com/users'), max_queue_size=100) :
             q.put(nnode)
             
 if __name__ == '__main__' :
-    crawl()
+    try :
+        crawl()
+    except Exception as e :
+        db.close()
+        raise e
