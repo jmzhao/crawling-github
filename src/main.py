@@ -21,7 +21,7 @@ repo_interested_keys = ('id', 'name', 'full_name', 'url', 'contributors_url')
 
 username = None
 password = None
-db_filename = '../data/db.tinydb'
+db_filename = './data/db.tinydb'
 get_web_req_gap = lambda : 0#random.uniform(1,3)
 
 try :
