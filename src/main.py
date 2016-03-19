@@ -31,7 +31,7 @@ def repo_node_for_store(node) :
 
 def url2json(url) :
     print('requerying:', url)
-    t = random.random()
+    t = random.random() * 10
     print('hold for %fs...'%t, end=' ')
     res = urllib.request.urlopen(url)
     print('done.')
@@ -56,8 +56,8 @@ def store(node) :
     print('storing:', 'User:' + node.get('login'))
     db.table('User').insert(user_node_for_store(node))
     repo_node_list = url2json(node['repos_url'])
-    for n in repo_node_list :
-        print('storing:', 'Repo:' + n.get('full_name'))
+    print('storing:', 'Repo:' + node.get('login') + '/*', 
+        '(%d repos in total)'%(len(repo_node_list)))
     db.table('Repo').insert_multiple([repo_node_for_store(n) for n in repo_node_list])
     
 def is_visited(node) :
