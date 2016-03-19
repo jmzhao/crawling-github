@@ -65,7 +65,8 @@ def generate_next_nodes(node) :
     repo_node_list = url2json(node['repos_url'])
     repo = random.choice(repo_node_list)
     try :
-        return url2json(repo["contributors_url"])
+        j = url2json(repo["contributors_url"])
+        return j if type(j) == list else []
     except Exception as e :
         print(e)
         rest(10)
