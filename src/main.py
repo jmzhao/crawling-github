@@ -2,132 +2,30 @@
 """
 Created on Fri Mar 18 17:40:40 2016
 
-@author: jzhao
+@author: jmzhao
 """
 
-import urllib.request
-import json
-import tinydb
-import queue
-import random
-import time
 import os
-import getpass
-import requests
 import sys
+import random
+import crawl
 
-
-user_interested_keys = ('id', 'login', 'url', 'repos_url')
-repo_interested_keys = ('id', 'name', 'full_name', 'url', 'contributors_url')
-
-username = None
-password = None
-db_filename = './data/db.tinydb'
-get_web_req_gap = (eval('lambda : ' + sys.argv[1]) if len(sys.argv)>1 
-    else lambda : random.uniform(1,3))
-
-try :
-    os.mkdir('./data/')
-except FileExistsError :
-    pass
-db = tinydb.database.TinyDB(db_filename)
-
-def user_node_for_store(node) :
-    return dict((k, node.get(k)) for k in user_interested_keys)
-def repo_node_for_store(node) :
-    return dict((k, node.get(k)) for k in repo_interested_keys)
-
-def url2json(url) :
-    print('requerying:', url)
-    t = get_web_req_gap()
-    print('hold for %fs...'%t, end=' ', flush=True)
-    time.sleep(t)
-    print('hold cleared.', end=' ', flush=True)
-    res = requests.get(url, auth=(username, password))
-#   res = urllib.request.urlopen(url)
-    print('done.', end=' ', flush=True)
-    print('Remaining/Limit=%s/%s'%(
-        res.headers.get('X-RateLimit-Remaining'), 
-        res.headers.get('X-RateLimit-Limit')))
-    obj = json.loads(res.text)
-    return obj
-
-def seed2node(seed) :
-    node = url2json('https://api.github.com/users/' + seed['login'])
-    return node
-
-def generate_next_nodes(node) :
-    ''' generate a sequence of reachable nodes
-    
-    raises: 
-      random.choice - IndexError('Cannot choose from an empty sequence')
-    '''
-    repo_node_list = url2json(node['repos_url'])
-    repo = random.choice(repo_node_list)
+def main() :
+    db_dirname = './data/'
     try :
-        j = url2json(repo["contributors_url"])
-        return j if type(j) == list else []
-    except Exception as e :
-        print(e)
-        rest(10)
-        return []
-
-def store(node) :
-    print('storing:', 'User:' + node.get('login'))
-    db.table('User').insert(user_node_for_store(node))
-    repo_node_list = url2json(node['repos_url'])
-    print('storing:', 'Repo:' + node.get('login') + '/*', 
-        '(%d repos in total)'%(len(repo_node_list)))
-    db.table('Repo').insert_multiple([repo_node_for_store(n) for n in repo_node_list])
-    
-def is_visited(node) :
-    return db.table('User').contains(tinydb.Query().id == node.get('id'))
-
-def is_enough() :
-    return False
-#    return len(db.table('Repo'))>1000
-
-def rest(t) :
-    print(time.ctime() + ':', 'now rest for %ds'%t, flush=True)
-#    db.close()
-    time.sleep(t)
-    print(time.ctime() + ':', 'resumed', flush=True)
-    
-
-def crawl(seeds, max_queue_size=100) :
-    q = queue.Queue(maxsize=max_queue_size)
-    for seed in seeds :
-        q.put(seed2node(seed))
-    while not is_enough() :
-        node = q.get_nowait()
-        print('crawling:', 'User:' + node.get('login'))
-        if not is_visited(node) :
-            store(node)
-        try :
-            nnode = random.choice(generate_next_nodes(node)) 
-        except IndexError :
-            continue
-        if not is_visited(nnode) :
-            if q.full() :
-                q.get_nowait()
-            q.put_nowait(nnode)
-            
-if __name__ == '__main__' :
-    while True :
-        try :
-            username = input("GitHub username:")
-            password = getpass.getpass()
-            res = requests.get("https://api.github.com/users/" + username, 
-                auth=(username, password))
-        except Exception as e :
-            print(e)
-            continue
-        print(res)
-        if res.ok :
-            break
+        os.mkdir(db_dirname)
+    except FileExistsError :
+        pass
+    get_web_req_gap = (eval('lambda : ' + sys.argv[1]) if len(sys.argv)>1 
+        else lambda : random.uniform(1,3))
 
     try :
-        crawl(seeds=url2json('https://api.github.com/users'))
+        crawl.init(db_dirname + 'db.tinydb', get_web_req_gap)
+        crawl.authorize()
+        crawl.crawl(seeds=crawl.url2json('https://api.github.com/users'))
     except Exception as e :
-        db.close()
+        crawl.cleanup()
         raise e
+
+if __name__ == '__main__' :
+    main()
