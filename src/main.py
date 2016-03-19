@@ -25,12 +25,16 @@ except FileExistsError :
 db = tinydb.database.TinyDB('../data/db.tinydb')
 
 def user_node_for_store(node) :
-    return node.fromkeys(user_interested_keys)
+    return dict((k, node.get(k)) for k in user_interested_keys)
 def repo_node_for_store(node) :
-    return node.fromkeys(repo_interested_keys)
+    return dict((k, node.get(k)) for k in repo_interested_keys)
 
 def url2json(url) :
+    print('requerying:', url)
+    t = random.random()
+    print('hold for %fs...'%t, end=' ')
     res = urllib.request.urlopen(url)
+    print('done.')
     obj = json.loads(res.read().decode('utf-8'))
     return obj
 
@@ -63,12 +67,19 @@ def is_enough() :
     return False
 #    return len(db.table('Repo'))>1000
 
+def rest() :
+    t = random.randrange(60, 100)
+    print(time.ctime() + ':', 'now rest for %ds'%t)
+    db.close()
+    time.sleep(t)
+    
+
 def crawl(seeds=url2json('https://api.github.com/users'), max_queue_size=100) :
     q = queue.Queue(maxsize=max_queue_size)
     for seed in seeds :
         q.put(seed2node(seed))
     while not is_enough() :
-        time.sleep(random.randrange(60, 100))
+        rest()
         node = q.get()
         print('crawling:', 'User:' + node.get('login'))
         if not is_visited(node) :
