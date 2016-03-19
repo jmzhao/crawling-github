@@ -33,6 +33,7 @@ def url2json(url) :
     print('requerying:', url)
     t = random.random() * 10
     print('hold for %fs...'%t, end=' ')
+    time.sleep(t)
     res = urllib.request.urlopen(url)
     print('done.')
     obj = json.loads(res.read().decode('utf-8'))
