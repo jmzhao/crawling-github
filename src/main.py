@@ -34,6 +34,7 @@ def url2json(url) :
     t = random.random() * 10
     print('hold for %fs...'%t, end=' ', flush=True)
     time.sleep(t)
+    print('hold cleared.', end=' ', flush=True)
     res = urllib.request.urlopen(url)
     print('done.')
     obj = json.loads(res.read().decode('utf-8'))
@@ -73,6 +74,7 @@ def rest() :
     print(time.ctime() + ':', 'now rest for %ds'%t, flush=True)
 #    db.close()
     time.sleep(t)
+    print(time.ctime() + ':', 'resumed', flush=True)
     
 
 def crawl(seeds=url2json('https://api.github.com/users'), max_queue_size=100) :
